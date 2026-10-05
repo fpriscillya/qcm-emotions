@@ -7,10 +7,11 @@
   --ink: #1d2433;
   --muted: #586174;
   --line: #d5dae2;
-  --a: #0f7c80;          /* partenaire A : sarcelle */
-  --a-soft: #e2f1f1;
-  --b: #9a3e77;          /* partenaire B : prune */
-  --b-soft: #f5e6ef;
+  --a: #00b1ae;          /* partenaire A : sarcelle */
+  --a-soft: #e0f5f4;
+  --a-ink: #00716e;      /* sarcelle foncée pour le texte */
+  --b: #cf0063;          /* partenaire B : magenta */
+  --b-soft: #fbe3ee;
   --ok: #1e7f48;
   --ok-soft: #e3f3ea;
   --bad: #b93a33;
@@ -39,10 +40,11 @@
     --ink: #e6e9ef;
     --muted: #9ba4b4;
     --line: #2e3645;
-    --a: #4fb9bd;
-    --a-soft: #183334;
-    --b: #d684b8;
-    --b-soft: #3a2232;
+    --a: #00b1ae;
+    --a-soft: #0f3433;
+    --a-ink: #00b1ae;
+    --b: #ff5aa0;
+    --b-soft: #3d1426;
     --ok: #5cc78a;
     --ok-soft: #173325;
     --bad: #f07c74;
@@ -244,12 +246,8 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .btn:hover { border-color: var(--muted); }
 .btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
-.btn-primary { background: var(--a); border-color: var(--a); color: #fff; }
+.btn-primary { background: var(--a); border-color: var(--a); color: #0d1f24; }
 .btn-primary:hover { filter: brightness(1.06); border-color: var(--a); }
-
-@media (prefers-color-scheme: dark) {
-  .btn-primary { color: #0d1a1b; }
-}
 
 .btn-quiet { background: transparent; border-color: transparent; color: var(--muted); padding-left: 8px; padding-right: 8px; }
 .btn-quiet:hover { color: var(--ink); border-color: transparent; }
@@ -365,7 +363,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .opt.is-multi .letter { border-radius: 6px; }
 
 .opt[aria-pressed="true"] { border-color: var(--a); background: var(--a-soft); }
-.opt[aria-pressed="true"] .letter { background: var(--a); border-color: var(--a); color: #fff; }
+.opt[aria-pressed="true"] .letter { background: var(--a); border-color: var(--a); color: #0d1f24; }
 
 .opt:disabled { cursor: default; }
 
@@ -471,7 +469,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .review .ra { font-size: 0.92rem; margin: 2px 0; }
 .review .ra b { font-weight: 650; }
 
-details > summary { cursor: pointer; color: var(--a); font-weight: 600; font-size: 0.9rem; margin-top: 8px; }
+details > summary { cursor: pointer; color: var(--a-ink); font-weight: 600; font-size: 0.9rem; margin-top: 8px; }
 details[open] > summary { margin-bottom: 6px; }
 
 /* ---------- Fiches ---------- */
