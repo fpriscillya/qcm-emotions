@@ -3,4 +3,5 @@
 window.QCM_MANIFEST = [
   "week-01.js",
   "week-02.js",
+  "week-03.js",
 ];
