@@ -4,7 +4,7 @@
 (function () {
   "use strict";
 
-  var VERSION = "1.0.0";
+  var VERSION = "1.2.0";
   var STORE_KEY = "qcm-emoapp-progress-v1";
   var PREF_KEY = "qcm-emoapp-prefs-v1";
   var CODE_PREFIX = "QCMEA1:";
@@ -21,9 +21,11 @@
     failedFiles: [],
     progress: {},
     storageOk: true,
-    prefs: { mode: "practice", filter: "all", week: "", topic: "", count: "20", timer: true },
+    prefs: { mode: "practice", filter: "all", week: "", topic: "", lesson: "", count: "30", timer: true, v: 2 },
     session: null,
-    browse: { q: "", week: "", topic: "", status: "" },
+    browse: { q: "", lesson: "", week: "", topic: "", status: "" },
+    lessons: [],
+    lessonById: {},
     timerId: null
   };
 
@@ -155,6 +157,36 @@
     });
   }
 
+  /* Séances : data/lessons.js définit window.QCM_LESSONS (liste ordonnée) et
+     window.QCM_LESSON_OF (id de question -> séance, pour les semaines 1 à 4).
+     À partir de la semaine 5, chaque question porte son champ « lesson ». */
+  var OTHER_LESSON = { id: "autre", seance: 99, date: "", title: "Séance non indiquée", exam: 0 };
+
+  function setupLessons() {
+    var list = Array.isArray(window.QCM_LESSONS) ? window.QCM_LESSONS : [];
+    state.lessons = list.filter(function (l) { return l && typeof l.id === "string"; });
+    state.lessonById = {};
+    state.lessons.forEach(function (l, i) { l.order = i; state.lessonById[l.id] = l; });
+    OTHER_LESSON.order = state.lessons.length;
+    state.lessonById[OTHER_LESSON.id] = OTHER_LESSON;
+  }
+
+  function resolveLesson(q) {
+    var map = window.QCM_LESSON_OF || {};
+    var id = q.lesson || map[q.id] || "";
+    return state.lessonById[id] && id !== OTHER_LESSON.id ? id : OTHER_LESSON.id;
+  }
+
+  function lessonOf(q) { return state.lessonById[q.lesson] || OTHER_LESSON; }
+
+  function lessonShort(l) {
+    return l.id === OTHER_LESSON.id ? l.title : "Séance " + l.seance + (l.date ? " · " + l.date : "");
+  }
+
+  function lessonLong(l) {
+    return l.id === OTHER_LESSON.id ? l.title : lessonShort(l) + " · " + l.title;
+  }
+
   function validate(raw) {
     var seen = {};
     var ok = [];
@@ -176,6 +208,7 @@
         id: q.id,
         week: +q.week || +q.id.slice(1, 3),
         topic: q.topic || "Sans thème",
+        lesson: resolveLesson(q),
         source: q.source || "student",
         variantOf: q.variantOf || "",
         question: q.question,
@@ -198,6 +231,12 @@
       Object.keys(state.prefs).forEach(function (k) {
         if (savedPrefs[k] !== undefined) state.prefs[k] = savedPrefs[k];
       });
+      // v1.1.0 : passage à 30 questions par défaut (format du QCM), une seule fois.
+      if (savedPrefs.v !== 2) {
+        state.prefs.count = "30";
+        state.prefs.v = 2;
+        savePrefs();
+      }
     }
     // Test d'écriture : certains navigateurs bloquent le stockage en file://
     writeJSON("qcm-emoapp-probe", 1);
@@ -214,6 +253,7 @@
         return loadScript("data/" + f).then(function (ok) { if (!ok) state.failedFiles.push(f); });
       });
     }, Promise.resolve()).then(function () {
+      setupLessons();
       state.bank = validate(window.QCM_BANK);
       state.bank.sort(function (a, b) { return a.id < b.id ? -1 : a.id > b.id ? 1 : 0; });
       state.bank.forEach(function (q) { state.byId[q.id] = q; });
@@ -242,10 +282,49 @@
     return Object.keys(t).sort(function (a, b) { return a.localeCompare(b, "fr"); }).map(function (k) { return { name: k, n: t[k] }; });
   }
 
+  /* Séances qui ont au moins une question, dans l'ordre du calendrier. */
+  function lessonsUsed() {
+    var n = {};
+    state.bank.forEach(function (q) { n[q.lesson] = (n[q.lesson] || 0) + 1; });
+    return state.lessons.concat([OTHER_LESSON])
+      .filter(function (l) { return n[l.id]; })
+      .map(function (l) { return { lesson: l, n: n[l.id] }; });
+  }
+
+  /* Thèmes regroupés sous la séance où ils apparaissent le plus. */
+  function topicsByLesson() {
+    var count = {};
+    state.bank.forEach(function (q) {
+      var c = count[q.topic] || (count[q.topic] = { n: 0, by: {} });
+      c.n += 1;
+      c.by[q.lesson] = (c.by[q.lesson] || 0) + 1;
+    });
+    var groups = {};
+    Object.keys(count).forEach(function (name) {
+      var by = count[name].by;
+      var best = Object.keys(by).sort(function (a, b) {
+        return by[b] - by[a] || state.lessonById[a].order - state.lessonById[b].order;
+      })[0];
+      (groups[best] || (groups[best] = [])).push({ name: name, n: count[name].n });
+    });
+    return lessonsUsed().filter(function (x) { return groups[x.lesson.id]; }).map(function (x) {
+      return {
+        lesson: x.lesson,
+        topics: groups[x.lesson.id].sort(function (a, b) { return a.name.localeCompare(b.name, "fr"); })
+      };
+    });
+  }
+
+  function byLessonThenId(a, b) {
+    var d = lessonOf(a).order - lessonOf(b).order;
+    return d || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
+  }
+
   function pool(prefs) {
     var p = prefs || state.prefs;
     return state.bank.filter(function (q) {
       switch (p.filter) {
+        case "lesson": return q.lesson === p.lesson;
         case "week": return String(q.week) === String(p.week);
         case "topic": return q.topic === p.topic;
         case "missed": return isMissed(q.id);
@@ -261,7 +340,7 @@
     var shuffled = shuffle(list);
     var rank = function (q) { return isMissed(q.id) ? 0 : !isSeen(q.id) ? 1 : 2; };
     shuffled.sort(function (a, b) { return rank(a) - rank(b); });
-    var n = count === "all" ? shuffled.length : Math.min(+count || 20, shuffled.length);
+    var n = count === "all" ? shuffled.length : Math.min(+count || 30, shuffled.length);
     return shuffle(shuffled.slice(0, n));
   }
 
@@ -329,6 +408,11 @@
     var ts = topics();
     if (!p.week || ws.indexOf(+p.week) < 0) p.week = String(ws[ws.length - 1]);
     if (!p.topic || !ts.some(function (t) { return t.name === p.topic; })) p.topic = ts[0].name;
+    var ls = lessonsUsed();
+    if (!p.lesson || !ls.some(function (x) { return x.lesson.id === p.lesson; })) {
+      var real = ls.filter(function (x) { return x.lesson.id !== OTHER_LESSON.id; });
+      p.lesson = (real.length ? real[real.length - 1] : ls[0]).lesson.id;
+    }
 
     var avail = pool().length;
     var n = p.count === "all" ? avail : Math.min(+p.count, avail);
@@ -350,8 +434,15 @@
       return '<option value="' + w + '"' + (String(w) === String(p.week) ? " selected" : "") + ">Semaine " + w + " (" + c + ")</option>";
     }).join("") + "</select>";
 
-    var topicSelect = '<select data-action="topic" aria-label="Thème">' + ts.map(function (t) {
-      return '<option value="' + esc(t.name) + '"' + (t.name === p.topic ? " selected" : "") + ">" + esc(t.name) + " (" + t.n + ")</option>";
+    var lessonSelect = '<select data-action="lesson" aria-label="Séance">' + ls.map(function (x) {
+      return '<option value="' + esc(x.lesson.id) + '"' + (x.lesson.id === p.lesson ? " selected" : "") + ">" +
+        esc(lessonLong(x.lesson)) + " (" + x.n + ")</option>";
+    }).join("") + "</select>";
+
+    var topicSelect = '<select data-action="topic" aria-label="Thème">' + topicsByLesson().map(function (g) {
+      return '<optgroup label="' + esc(lessonLong(g.lesson)) + '">' + g.topics.map(function (t) {
+        return '<option value="' + esc(t.name) + '"' + (t.name === p.topic ? " selected" : "") + ">" + esc(t.name) + " (" + t.n + ")</option>";
+      }).join("") + "</optgroup>";
     }).join("") + "</select>";
 
     var modeHelp = p.mode === "practice"
@@ -401,8 +492,9 @@
             "<h2>Questions</h2>" +
             '<div class="choices">' +
               choice("all", "Toutes les questions", total) +
-              choice("week", "Par semaine", null, p.filter === "week" ? weekSelect : "") +
-              choice("topic", "Par thème", null, p.filter === "topic" ? topicSelect : "") +
+              choice("lesson", "Par séance du cours", null, p.filter === "lesson" ? lessonSelect : "") +
+              choice("topic", "Par thème (regroupés par séance)", null, p.filter === "topic" ? topicSelect : "") +
+              choice("week", "Par liste hebdomadaire (semaine de dépôt)", null, p.filter === "week" ? weekSelect : "") +
               choice("missed", "À revoir (ratées, pas encore réussies)", missed) +
               choice("disputed", "Contestées (clé discutable)", disputed) +
               choice("unverified", "Non vérifiées (hors supports)", unverified) +
@@ -420,7 +512,8 @@
           '<button type="button" class="btn btn-quiet" data-action="sync">Transférer la progression</button>' +
         "</div>" +
         '<footer class="footer"><span>Version ' + VERSION + "</span><span>" +
-          plural(ws.length, "semaine chargée", "semaines chargées") + " : " + ws.join(", ") + "</span></footer>" +
+          plural(ws.length, "liste chargée", "listes chargées") + " (semaines " + ws.join(", ") + ") · " +
+          plural(Object.keys(ls.reduce(function (s, x) { if (x.lesson.id !== OTHER_LESSON.id) s[x.lesson.seance] = 1; return s; }, {})).length, "séance couverte", "séances couvertes") + "</span></footer>" +
       "</div>";
   }
 
@@ -520,7 +613,7 @@
         timer +
       '</div><div class="bar"><span style="width:' + progressPct.toFixed(1) + '%"></span></div></div>' +
       '<div class="wrap">' +
-        '<div class="qmeta"><span>Semaine ' + q.week + "</span><span>" + esc(q.topic) + "</span>" +
+        '<div class="qmeta"><span>' + esc(lessonShort(lessonOf(q))) + "</span><span>" + esc(q.topic) + "</span>" +
           (item.again ? '<span class="again">À revoir</span>' : "") + "</div>" +
         '<p class="qtext">' + esc(q.question) + "</p>" +
         (multi ? '<p class="multi-hint">Plusieurs réponses possibles</p>' : "") +
@@ -742,11 +835,11 @@
   function renderBrowse(keepFocus) {
     stopTimer();
     var b = state.browse;
-    var ws = weeks();
-    var ts = topics();
+    var ls = lessonsUsed();
+    var tg = topicsByLesson();
     var needle = b.q.trim().toLowerCase();
     var list = state.bank.filter(function (q) {
-      if (b.week && String(q.week) !== b.week) return false;
+      if (b.lesson && q.lesson !== b.lesson) return false;
       if (b.topic && q.topic !== b.topic) return false;
       if (b.status && q.status !== b.status) return false;
       if (needle) {
@@ -754,16 +847,16 @@
         if (hay.indexOf(needle) < 0) return false;
       }
       return true;
-    });
+    }).sort(byLessonThenId);
 
-    var cards = list.map(function (q) {
+    function card(q) {
       var dist = q.options.map(function (o, i) {
         if (q.correct.indexOf(i) >= 0) return "";
         var why = q.distractors[String(i)];
         return why ? "<li><b>" + LETTERS[i] + "</b><span>" + esc(why) + "</span></li>" : "";
       }).join("");
       return '<li class="card">' +
-        '<div class="qmeta"><span>' + esc(q.id) + "</span><span>Semaine " + q.week + "</span><span>" + esc(q.topic) + "</span>" + statusBadge(q) + sourceBadge(q) + "</div>" +
+        '<div class="qmeta"><span>' + esc(q.id) + "</span><span>" + esc(q.topic) + "</span>" + statusBadge(q) + sourceBadge(q) + "</div>" +
         '<p class="qtext">' + esc(q.question) + "</p>" +
         "<ol>" + q.options.map(function (o, i) {
           var ok = q.correct.indexOf(i) >= 0;
@@ -775,6 +868,21 @@
           '<p class="ref">Source : ' + (q.ref ? esc(q.ref) : "aucune source dans les supports du cours") + "</p>" +
           (q.note ? '<div class="status-box">' + statusBadge(q) + esc(q.note) + "</div>" : "") +
         "</details></li>";
+    }
+
+    /* Fiches regroupées par séance, dans l'ordre du calendrier. */
+    var groups = [];
+    list.forEach(function (q) {
+      var last = groups[groups.length - 1];
+      if (!last || last.lesson.id !== q.lesson) groups.push(last = { lesson: lessonOf(q), items: [] });
+      last.items.push(q);
+    });
+    var cards = groups.map(function (g) {
+      return '<section aria-label="' + esc(lessonLong(g.lesson)) + '">' +
+        '<h2 style="font-size:1.05rem;margin:28px 0 0;line-height:1.35">' + esc(lessonShort(g.lesson)) +
+          (g.lesson.id !== OTHER_LESSON.id ? '<span style="display:block;font-family:var(--serif);font-weight:600;font-size:1.2rem">' + esc(g.lesson.title) + "</span>" : "") +
+          '<span style="display:block;color:var(--muted);font-weight:500;font-size:0.85rem">' + plural(g.items.length, "question", "questions") + "</span></h2>" +
+        '<ul class="cards" style="margin-top:12px">' + g.items.map(card).join("") + "</ul></section>";
     }).join("");
 
     app.innerHTML =
@@ -785,16 +893,20 @@
       '<div class="wrap">' +
         '<div class="filters">' +
           '<input type="search" class="full" data-action="b-q" placeholder="Rechercher un mot (ex. HRV, Scherer, SHER)" value="' + esc(b.q) + '" aria-label="Rechercher">' +
-          '<select data-action="b-week" aria-label="Semaine"><option value="">Toutes les semaines</option>' +
-            ws.map(function (w) { return '<option value="' + w + '"' + (String(w) === b.week ? " selected" : "") + ">Semaine " + w + "</option>"; }).join("") + "</select>" +
+          '<select data-action="b-lesson" aria-label="Séance"><option value="">Toutes les séances</option>' +
+            ls.map(function (x) { return '<option value="' + esc(x.lesson.id) + '"' + (x.lesson.id === b.lesson ? " selected" : "") + ">" + esc(lessonLong(x.lesson)) + "</option>"; }).join("") + "</select>" +
           '<select data-action="b-topic" aria-label="Thème"><option value="">Tous les thèmes</option>' +
-            ts.map(function (t) { return '<option value="' + esc(t.name) + '"' + (t.name === b.topic ? " selected" : "") + ">" + esc(t.name) + "</option>"; }).join("") + "</select>" +
+            tg.map(function (g) {
+              return '<optgroup label="' + esc(lessonShort(g.lesson)) + '">' + g.topics.map(function (t) {
+                return '<option value="' + esc(t.name) + '"' + (t.name === b.topic ? " selected" : "") + ">" + esc(t.name) + "</option>";
+              }).join("") + "</optgroup>";
+            }).join("") + "</select>" +
           '<select data-action="b-status" aria-label="Statut"><option value="">Tous les statuts</option>' +
             '<option value="ok"' + (b.status === "ok" ? " selected" : "") + ">Vérifiées</option>" +
             '<option value="disputed"' + (b.status === "disputed" ? " selected" : "") + ">Contestées</option>" +
             '<option value="unverified"' + (b.status === "unverified" ? " selected" : "") + ">Non vérifiées</option></select>" +
         "</div>" +
-        (cards ? '<ul class="cards">' + cards + "</ul>" : '<p class="empty">Aucune question ne correspond. Modifiez la recherche ou les filtres.</p>') +
+        (cards || '<p class="empty">Aucune question ne correspond. Modifiez la recherche ou les filtres.</p>') +
         '<footer class="footer"><span>Version ' + VERSION + "</span><span>Les lettres suivent l'ordre du fichier ; en session, l'ordre des options est mélangé.</span></footer>" +
       "</div>";
 
@@ -952,7 +1064,8 @@
     else if (a === "week") { p.week = el.value; savePrefs(); renderHome(); }
     else if (a === "topic") { p.topic = el.value; savePrefs(); renderHome(); }
     else if (a === "timer") { p.timer = el.checked; savePrefs(); }
-    else if (a === "b-week") { state.browse.week = el.value; renderBrowse(false); }
+    else if (a === "lesson") { p.lesson = el.value; savePrefs(); renderHome(); }
+    else if (a === "b-lesson") { state.browse.lesson = el.value; renderBrowse(false); }
     else if (a === "b-topic") { state.browse.topic = el.value; renderBrowse(false); }
     else if (a === "b-status") { state.browse.status = el.value; renderBrowse(false); }
   });
