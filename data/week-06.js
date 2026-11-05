@@ -619,15 +619,16 @@ window.QCM_BANK = (window.QCM_BANK || []).concat([
       "L'EEG",
       "La MEG"
     ],
-    correct: [0, 1],
-    explanation: "La diapo dit : « La méthode de référence est l'électrocardiographie (ECG) ». L'ECG n'est pas dans les options. La HRV et la RSA sont deux mesures calculées à partir de l'ECG ; la synchronie autonome est souvent étudiée par couplage RSA ou couplage cardiorespiratoire.",
+    correct: [0],
+    explanation: "Réponse la plus probable : A (HRV). La diapo dit : « La méthode de référence est l'électrocardiographie (ECG) », et l'ECG n'est pas dans les options. La HRV est la mesure présentée juste après l'ECG : variation de l'intervalle entre deux battements, réglée par les systèmes sympathique et parasympathique. Connaissance générale, hors diapos : la RSA est une composante de la HRV liée à la respiration, donc la HRV est la réponse la plus générale.",
     distractors: {
+      "1": "Défendable aussi : la RSA est calculée à partir de l'ECG et sert au couplage RSA dans la synchronie autonome. Mais c'est une composante plus spécifique de la HRV (connaissance générale) : la HRV reste la réponse la plus probable.",
       "2": "L'EEG mesure l'activité électrique du cerveau : synchronie neuronale.",
       "3": "La MEG mesure l'activité magnétique du cerveau : synchronie neuronale."
     },
     ref: "L28, diapos 30, 33-34 et 57",
     status: "disputed",
-    note: "Pas de clé proposée. Aucune option ne correspond à la diapo, qui nomme l'ECG comme méthode de référence. HRV et RSA en dérivent toutes les deux ; si l'examen ne retient qu'une réponse, la question est mal construite. À retenir : gold standard = ECG. Orthographe corrigée (« arythmie sinusoïdale », « Le EEG »)."
+    note: "Contestée car aucune option ne correspond à la diapo (ECG). Choix de la HRV fondé sur l'ordre de présentation des diapos et sur des connaissances générales (la RSA fait partie de la HRV). À retenir : gold standard = ECG. Orthographe corrigée (« arythmie sinusoïdale », « Le EEG »)."
   },
   {
     id: "w06-q29",
@@ -710,7 +711,7 @@ window.QCM_BANK = (window.QCM_BANK || []).concat([
       "Quand elles ne sont pas valencées émotionnellement"
     ],
     correct: [0],
-    explanation: "Kang et al. (2009) : le rappel augmente avec le niveau de curiosité (environ 38 %, 52 %, 66 %). Marvin & Shohamy (2016) retrouvent l'effet dans les trois contextes.",
+    explanation: "Réponse la plus probable : A. Kang et al. (2009) : le rappel augmente avec le niveau de curiosité (≈ 38 %, 52 %, 66 %). Marvin & Shohamy (2016) retrouvent l'effet dans les contextes positif, négatif et neutre. La question reprend le vocabulaire du cours sur les émotions épistémiques.",
     distractors: {
       "1": "Défendable aussi : chez Davidesco et al. (2023), la synchronie élève-élève prédit la mémorisation immédiate et différée. Mais c'est une corrélation au niveau du groupe, pas un état de l'individu comme la curiosité.",
       "2": "C'est l'inverse : plus d'intérêt, meilleure mémorisation.",
@@ -718,7 +719,7 @@ window.QCM_BANK = (window.QCM_BANK || []).concat([
     },
     ref: "Émotions épistémiques (Filippa), p. 12-13",
     status: "disputed",
-    note: "Pas de clé proposée. A est la réponse visée (cours sur la curiosité). B est défendable à partir du cours du 21/09 (Cut, diapos 3-4). Orthographe corrigée (« rappel », « pas valancé »)."
+    note: "Contestée car B est défendable à partir du cours du 21/09 : chez Davidesco et al. (2023), la synchronie élève-élève prédit la mémorisation (Cut, diapos 3-4). Mais c'est une corrélation au niveau du groupe, pas un état de la personne comme la curiosité. Orthographe corrigée (« rappel », « pas valancé »)."
   },
   {
     id: "w06-q33",
@@ -806,7 +807,7 @@ window.QCM_BANK = (window.QCM_BANK || []).concat([
       "La motivation intrinsèque"
     ],
     correct: [3],
-    explanation: "Les 5 compétences socio-émotionnelles du modèle CASEL : conscience de soi, conscience sociale, auto-régulation, prise de décision responsable, établissement et maintien de relations positives. La motivation intrinsèque n'en fait pas partie.",
+    explanation: "Réponse la plus probable : D. Les 5 compétences socio-émotionnelles du modèle CASEL (cours du 12/10) : conscience de soi, conscience sociale, auto-régulation, prise de décision responsable, établissement et maintien de relations positives. La motivation intrinsèque n'en fait pas partie. Les trois autres options sont exactement des compétences CASEL, ce qui indique que la question vise ce modèle.",
     distractors: {
       "0": "Compétence CASEL.",
       "1": "Compétence CASEL.",
@@ -814,7 +815,7 @@ window.QCM_BANK = (window.QCM_BANK || []).concat([
     },
     ref: "Compétences socio-émotionnelles 4-7 ans (Richard), diapo 4",
     status: "disputed",
-    note: "Pas de clé proposée. D est la réponse selon le modèle CASEL (cours du 12/10). Mais dans le cours du 26/10, la motivation (intrinsèque) est un des 5 piliers de l'intelligence émotionnelle de Goleman : si la question vise ce modèle, aucune option n'est fausse. Bien noter de quel modèle parle la question."
+    note: "Contestée car dans le cours du 26/10, la motivation (intrinsèque) est un des 5 piliers de l'intelligence émotionnelle de Goleman : si la question visait ce modèle, aucune option ne serait fausse. Bien noter de quel modèle parle la question."
   },
   {
     id: "w06-q37",
@@ -914,9 +915,14 @@ window.QCM_BANK = (window.QCM_BANK || []).concat([
     topic: "Intelligence émotionnelle (Goleman)",
     source: "student",
     question: "Lequel de ces piliers ne correspond pas aux 5 piliers de l'intelligence émotionnelle de Goleman ?",
-    options: ["Conscience de soi", "Empathie", "Motivation", "Autogestion"],
+    options: [
+      "Conscience de soi",
+      "Empathie",
+      "Motivation",
+      "Autogestion"
+    ],
     correct: [3],
-    explanation: "La diapo liste : conscience de soi, autorégulation, motivation, empathie, compétences sociales. « Autogestion » n'est pas le terme du cours.",
+    explanation: "Réponse la plus probable : D. La diapo liste les 5 piliers de Goleman (1995) : conscience de soi, autorégulation, motivation, empathie, compétences sociales. « Autogestion » n'est pas le terme du cours : c'est la réponse attendue.",
     distractors: {
       "0": "Pilier de Goleman.",
       "1": "Pilier de Goleman.",
@@ -924,7 +930,7 @@ window.QCM_BANK = (window.QCM_BANK || []).concat([
     },
     ref: "Compétences émotionnelles et interventions (Filippa), diapo 10",
     status: "disputed",
-    note: "Pas de clé proposée. D est la réponse visée, mais « autogestion » (self-management) est le nom que Goleman donne lui-même à l'autorégulation dans ses travaux plus récents : on peut le lire comme un synonyme. Dans ce cas, aucune option n'est fausse. Retenir le terme du cours : autorégulation. Orthographe corrigée (« Le quel »)."
+    note: "Contestée car « autogestion » (self-management) est le nom que Goleman donne lui-même à l'autorégulation dans ses travaux plus récents (connaissance générale, hors diapos) : on peut le lire comme un synonyme. Retenir le terme du cours : autorégulation. Orthographe corrigée (« Le quel »)."
   },
   {
     id: "w06-q42",

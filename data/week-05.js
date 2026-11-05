@@ -251,14 +251,14 @@ window.QCM_BANK = (window.QCM_BANK || []).concat([
       "Elle change de couleur"
     ],
     correct: [0, 2],
-    explanation: "Kang et al. (2009) : la dilatation pupillaire est plus forte pour les questions à curiosité élevée ; elle monte avant l'affichage de la réponse et culmine juste après. « S'agrandir » et « se dilater » décrivent la même réaction.",
+    explanation: "Réponses les plus probables : A et C, qui sont synonymes. Kang et al. (2009) : la dilatation pupillaire est plus forte quand la curiosité est élevée ; elle monte avant l'affichage de la réponse et culmine juste après. Si une seule réponse est demandée, choisir « se dilate », le terme du cours (dilatation pupillaire).",
     distractors: {
       "1": "Le graphique montre une dilatation, pas une contraction.",
       "3": "La couleur de l'iris ne change pas."
     },
     ref: "Émotions épistémiques (Filippa), p. 10-12",
     status: "disputed",
-    note: "Pas de clé proposée. A et C sont synonymes : les deux sont justes. Si une seule réponse est attendue, la question est mal construite ; « se dilate » est le terme du cours (dilatation pupillaire). Contenu du cours du 05/10. Orthographe corrigée (« rétréci », « chance de couleur »). Même contenu que w03-q25."
+    note: "Contestée car A et C disent la même chose. Contenu du cours du 05/10. Orthographe corrigée (« rétréci », « chance de couleur »). Même contenu que w03-q25."
   },
   {
     id: "w05-q12",

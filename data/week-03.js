@@ -12,7 +12,7 @@ window.QCM_BANK = (window.QCM_BANK || []).concat([
       "Impossibilité de choisir les comportements observés, absence de vidéo, coût des capteurs, nécessité d'un EEG"
     ],
     correct: [0],
-    explanation: "Les méthodes non computationnelles reposent sur un observateur formé qui analyse des vidéos (micro-comportements ou jugement global de l'interaction). La diapo 16 (Delaherche et al., 2012) liste quatre inconvénients : prise de temps, précision limitée, dépendance aux compétences des observateurs, difficulté de mise en œuvre dans des contextes plus naturels.",
+    explanation: "Réponse la plus probable : A, la liste exacte de la diapo (Delaherche et al., 2012) : prise de temps, précision limitée, dépendance aux compétences des observateurs, difficulté de mise en œuvre dans des contextes plus naturels. Ces méthodes reposent sur un observateur formé qui analyse des vidéos (micro-comportements ou jugement global de l'interaction).",
     distractors: {
       "1": "Réponse proposée par l'étudiant·e. Les trois premières limites sont justes, mais la 4e de la diapo est la difficulté à appliquer ces méthodes en contexte naturel, pas le besoin d'un laboratoire coûteux.",
       "2": "Propriétés d'appareils de mesure (résolution temporelle, sensibilité aux mouvements), qui ne concernent pas l'observation par un observateur formé.",
@@ -20,7 +20,7 @@ window.QCM_BANK = (window.QCM_BANK || []).concat([
     },
     ref: "L28, diapos 15-16",
     status: "disputed",
-    note: "Réponse proposée par l'étudiant·e : 4e limite « laboratoire nécessaire (moyens coûteux) ». La diapo 16 indique « difficiles à mettre en œuvre dans des contextes plus naturels » : clé alignée sur la diapo. Contenu du cours de semaine 2 (L28). Question ouverte à l'origine : options rédigées pour le format QCM."
+    note: "Contestée car la réponse proposée par l'étudiant·e (B) remplace la 4e limite par « laboratoire nécessaire (moyens coûteux) », absente de la diapo. Contenu du cours du 28/09 (L28). Question ouverte à l'origine : options rédigées pour le format QCM."
   },
   {
     id: "w03-q02",
@@ -35,7 +35,7 @@ window.QCM_BANK = (window.QCM_BANK || []).concat([
       "Pas de flexibilité dans ce qu'on choisit d'observer"
     ],
     correct: [3],
-    explanation: "La diapo 16 liste les inconvénients des méthodes non computationnelles : prise de temps, précision limitée, dépendance aux compétences des observateurs, difficulté en contexte naturel. Le manque de flexibilité n'en fait pas partie : l'observateur peut au contraire choisir des micro-comportements précis ou juger l'interaction dans son ensemble (diapo 15).",
+    explanation: "Réponse la plus probable : D. Les inconvénients listés pour les méthodes d'observation sont la prise de temps, la précision limitée, la dépendance aux compétences des observateurs et la difficulté en contexte naturel. Le manque de flexibilité n'en fait pas partie : l'observateur choisit au contraire les micro-comportements à analyser ou juge l'interaction entière.",
     distractors: {
       "0": "Inconvénient listé sur la diapo 16.",
       "1": "Inconvénient listé sur la diapo 16.",
@@ -43,7 +43,7 @@ window.QCM_BANK = (window.QCM_BANK || []).concat([
     },
     ref: "L28, diapos 15-16",
     status: "disputed",
-    note: "Clé proposée par l'étudiant·e : B (précision limitée). Mais sa justification (« on peut vraiment choisir ce qu'on souhaite observer ») décrit l'option D, et la précision limitée figure bien parmi les inconvénients (diapo 16). Clé remplacée par D. Le libellé dit « capteurs » : la diapo concerne les méthodes non computationnelles, classées sous « capteurs de synchronisation comportementale ». Contenu du cours de semaine 2 (L28)."
+    note: "Contestée car l'étudiant·e avait donné B. Mais sa propre justification (« on peut vraiment choisir ce qu'on souhaite observer ») décrit D, et B est bien un inconvénient de la diapo. Le libellé dit « capteurs » : la diapo concerne les méthodes non computationnelles, classées sous « capteurs de synchronisation comportementale ». Contenu du cours du 28/09 (L28)."
   },
   {
     id: "w03-q03",
@@ -82,7 +82,7 @@ window.QCM_BANK = (window.QCM_BANK || []).concat([
       "est lié aux paramètres physiologiques cardiovasculaire, respiratoire ainsi que de conductance cutanée."
     ],
     correct: [4],
-    explanation: "La synchronie autonome se mesure par trois paramètres physiologiques du SNA : cardiovasculaires, respiratoires et conductance cutanée (Palumbo et al., 2017). On mesure ainsi l'arousal physiologique, qui résulte de l'équilibre entre influences sympathique et parasympathique (homéostasie, allostasie).",
+    explanation: "Réponse la plus probable : E. Les paramètres physiologiques du SNA mesurés pour la synchronie autonome sont cardiovasculaires, respiratoires et la conductance cutanée (Palumbo et al., 2017). On mesure ainsi l'arousal physiologique, issu de l'équilibre entre influences sympathique et parasympathique (homéostasie, allostasie).",
     distractors: {
       "0": "Dépend de la branche : l'activation sympathique (stress) diminue la variabilité, seule l'activation parasympathique (relaxation) l'augmente.",
       "1": "La diapo dit « nous mesurons l'arousal physiologique ». Le cours ne dit pas que le SNA mesure la valence.",
@@ -91,7 +91,7 @@ window.QCM_BANK = (window.QCM_BANK || []).concat([
     },
     ref: "L28, diapos 26-27 et 33",
     status: "disputed",
-    note: "Pas de clé proposée. E est la seule affirmation exacte sans réserve. D est défendable si l'auteur·e pensait à la branche parasympathique (relaxation, diapo 33), mais « rest-and-digest » n'apparaît pas dans le cours. A et C sont ambiguës car le SNA a deux branches aux effets opposés. Contenu du cours de semaine 2 (L28). Orthographe corrigée (« paramètre » au pluriel)."
+    note: "Contestée car le SNA a deux branches aux effets opposés : A, C et D ne sont vraies que pour une branche (D pour la branche parasympathique, et « rest-and-digest » n'est pas un terme du cours). E est la seule affirmation exacte sans condition. Contenu du cours du 28/09 (L28). Orthographe corrigée (« paramètre » au pluriel)."
   },
   {
     id: "w03-q05",
@@ -336,7 +336,7 @@ window.QCM_BANK = (window.QCM_BANK || []).concat([
       "Oui : en contexte négatif, la curiosité diminue la mémorisation"
     ],
     correct: [0],
-    explanation: "Marvin & Shohamy (2016) : la probabilité de rappel augmente avec la curiosité dans les trois contextes. Les courbes positive et négative sont presque parallèles (environ 0,69 à 0,86 et 0,68 à 0,82). La courbe neutre part plus bas (environ 0,54) et monte le plus (environ 0,80). La valence aide donc la mémoire surtout quand la curiosité est faible.",
+    explanation: "Réponse la plus probable : A. Marvin & Shohamy (2016) : la probabilité de rappel augmente avec la curiosité dans les trois contextes. Les courbes positive et négative sont presque parallèles (≈ 0,69 → 0,87 et ≈ 0,68 → 0,82) : l'effet n'est donc pas plus marqué en contexte positif qu'en négatif. La courbe neutre part plus bas (≈ 0,54) et monte le plus (≈ 0,80).",
     distractors: {
       "1": "Faux : la courbe monte dans les trois contextes.",
       "2": "Réponse proposée par l'étudiant·e. Le « non » est juste, mais pas la justification : la valence a un effet, surtout à faible curiosité (contextes positif et négatif mieux retenus que le neutre).",
@@ -344,7 +344,7 @@ window.QCM_BANK = (window.QCM_BANK || []).concat([
     },
     ref: "Émotions épistémiques (Filippa), p. 13",
     status: "disputed",
-    note: "Réponse proposée : « Non, la valence du contexte n'a pas d'impact ». Le « non » est cohérent avec le graphique, pas la justification : la valence améliore le rappel (positif et négatif > neutre) et cet avantage diminue quand la curiosité augmente. Valeurs lues sur le graphique (approximatives). Question ouverte à l'origine : options rédigées pour le format QCM."
+    note: "Contestée car la justification d'origine (« la valence n'a pas d'impact ») est fausse : à faible curiosité, les contextes positif et négatif sont mieux retenus que le neutre. Le « non » reste la bonne réponse. Valeurs lues sur le graphique (approximatives). Question ouverte à l'origine : options rédigées pour le format QCM."
   },
   {
     id: "w03-q16",
@@ -405,14 +405,14 @@ window.QCM_BANK = (window.QCM_BANK || []).concat([
       "contextualiser en fonction d'un programme spécifique ; laisser l'élève faire ses choix de travaux à la maison ; valider la pertinence de la formation auprès des chercheurs"
     ],
     correct: [1, 2],
-    explanation: "Les trois types d'interventions de Reber et al. (2018) : personnalisation du contexte, choix d'apprentissage (autonomie), pertinence personnelle (valeur d'utilité). B et C contiennent les trois, dans un ordre et un vocabulaire différents.",
+    explanation: "Réponses les plus probables : B et C, qui décrivent toutes deux les trois interventions de Reber et al. (2018) : personnalisation du contexte, choix d'apprentissage (autonomie), pertinence personnelle (valeur d'utilité). Si une seule réponse est demandée, B est un peu plus proche du cours : « l'utilité de la matière pour l'élève » reprend la valeur d'utilité, qui est personnelle.",
     distractors: {
       "0": "Le travail d'équipe ne fait pas partie des trois types d'interventions.",
       "3": "Aucun élément ne correspond. La pertinence doit être personnelle, établie par l'élève (texte sur l'utilité pour sa vie ou sa carrière), pas validée par des chercheurs."
     },
     ref: "Émotions épistémiques (Filippa), p. 30",
     status: "disputed",
-    note: "Pas de clé proposée. B et C décrivent toutes deux les trois interventions du cours : deux options défendables. Si une seule réponse est attendue, la question est mal construite. Libellé corrigé : « qui peuvent qui peuvent » et « des choisir spécifiques » (pour « des choix spécifiques »)."
+    note: "Contestée car deux options sont justes. Le choix de B en cas de réponse unique est une interprétation du libellé, pas une information des diapos. Libellé corrigé : « qui peuvent qui peuvent » et « des choisir spécifiques » (pour « des choix spécifiques »)."
   },
   {
     id: "w03-q19",

@@ -124,15 +124,16 @@ window.QCM_BANK = (window.QCM_BANK || []).concat([
       "Motrice, sensorielle et émotionnelle",
       "Parent-enfant, enseignant-élève et thérapeute-client"
     ],
-    correct: [0, 1],
-    explanation: "Le plan du cours et le récapitulatif listent trois niveaux : comportemental, physiologique, neuronal. Le modèle de De Felice et al. (2025) en présente quatre, avec les croyances et systèmes cognitifs de haut niveau. Les deux listes figurent dans le cours.",
+    correct: [0],
+    explanation: "Réponse la plus probable : A (comportementale, physiologique, neuronale). C'est la liste du plan du cours et du récapitulatif (la synchronie se produit entre les cerveaux, entre les systèmes corporels comme le cœur et la respiration, entre les comportements), et celle du cours du 21/09. Le modèle de De Felice et al. (2025) ajoute un 4e niveau : croyances et systèmes cognitifs de haut niveau.",
     distractors: {
+      "1": "Exacte selon le modèle de De Felice et al. (2025, diapo 5). Mais la question ne donne pas de nombre, et le plan et le récapitulatif du cours comptent 3 niveaux : choisir A, sauf si la question parle de 4 niveaux ou de De Felice.",
       "2": "Catégories non utilisées dans le cours.",
       "3": "Ce sont des types de participants (dyades étudiées), pas des types de synchronie."
     },
     ref: "L28, diapos 2, 4 et 5",
     status: "disputed",
-    note: "La réponse dépend du modèle visé : 3 niveaux (diapos 2 et 4) ou 4 niveaux (diapo 5). Si la question précise un nombre, choisir la liste correspondante. Question ouverte à l'origine : options rédigées pour le format QCM."
+    note: "Contestée car B est aussi exacte selon un autre modèle. Clé ramenée à une seule réponse (A). Question ouverte à l'origine : options rédigées pour le format QCM."
   },
   {
     id: "w02-q07",
@@ -396,7 +397,7 @@ window.QCM_BANK = (window.QCM_BANK || []).concat([
       "Toutes les réponses sont correctes"
     ],
     correct: [2],
-    explanation: "Citation de Leclère et al. (2014) : depuis les années 1970, la synchronie adulte-nourrisson a été étudiée principalement sous l'angle de ses manifestations comportementales.",
+    explanation: "Réponse la plus probable : comportemental. La diapo cite Leclère et al. (2014) : « Depuis les années 1970, la synchronie entre l'adulte et le nourrisson a été étudiée principalement sous l'angle de ses manifestations comportementales ». Le mot « principalement » de la question renvoie à cette citation.",
     distractors: {
       "0": "La synchronie physiologique est étudiée aussi (la dyade parent-nourrisson donne des résultats cohérents en comportemental et en physiologique), mais elle n'est pas le niveau « principal » historique.",
       "1": "La synchronie neuronale est un champ plus récent (hyperscanning).",
@@ -404,7 +405,7 @@ window.QCM_BANK = (window.QCM_BANK || []).concat([
     },
     ref: "L28, diapos 9 et 12",
     status: "disputed",
-    note: "Pas de clé proposée. « Comportemental » suit la citation de la diapo 12. « Toutes les réponses » peut être la réponse visée si l'auteur·e pensait aux trois niveaux couverts par le cours. À vérifier avec l'enseignante."
+    note: "Contestée car « Toutes les réponses sont correctes » peut être visé si l'auteur·e pensait aux trois niveaux étudiés dans le cours. Le mot « principalement » rend « comportemental » plus probable."
   },
   {
     id: "w02-q19",

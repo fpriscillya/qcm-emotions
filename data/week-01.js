@@ -58,15 +58,15 @@ window.QCM_BANK = (window.QCM_BANK || []).concat([
       "Synchronie endocrinienne"
     ],
     correct: [1],
-    explanation: "Dans les études du cours, la mesure reliée à la performance est la synchronie neuronale (IBS). Apprentissage d'une chanson (fNIRS, 24 dyades) : seule la méthode par parties synchronise le cortex frontal inférieur (IFC) de l'instructrice et de l'apprenante, et cette IBS prédit la performance (r = 0,58). Attention : chez Davidesco et al. (2023), le prédicteur spécifique est la synchronie élève-élève, pas élève-enseignant.",
+    explanation: "Réponse la plus probable : la synchronie neuronale. Dans le cours, les études qui relient la synchronie enseignant-élève à l'apprentissage mesurent l'activité cérébrale. La diapo sur Davidesco et al. (2023, EEG) s'intitule « La synchronie élève–enseignant prédit les résultats aux tests ». Dans l'apprentissage d'une chanson (fNIRS), la synchronie du cortex frontal inférieur entre instructrice et apprenante prédit la performance (r = 0,58). Nuance : chez Davidesco, le prédicteur le plus spécifique est la synchronie élève-élève en bande alpha.",
     distractors: {
       "0": "Réponse proposée par l'étudiant·e. Le groupe qui réussit le mieux a plus d'interactions vocales en tours de parole, mais la mesure reliée statistiquement à la performance est l'IBS, pas un indice de synchronie comportementale.",
       "2": "Balconi et al. (2026) trouvent une synchronie cardiaque plus forte en présentiel, mais les résultats d'apprentissage ne diffèrent pas entre présentiel et distanciel.",
       "3": "Le niveau endocrinien (cortisol) figure dans le modèle de De Felice et al. (2025), mais aucune étude du cours ne le relie à l'apprentissage en classe."
     },
-    ref: "Apprentissage et synchronie (Cut), diapos 4-5",
+    ref: "Apprentissage et synchronie (Cut), diapos 3-5",
     status: "disputed",
-    note: "Clé proposée par l'étudiant·e : « synchronie comportementale ». Les supports ne relient pas directement la synchronie comportementale professeur-élève à l'apprentissage ; la clé a été remplacée par « neuronale » d'après la diapo 5. La question reste floue car les trois niveaux sont liés (Cut, diapo 2). Question ouverte à l'origine : options rédigées pour le format QCM. À vérifier avec l'enseignante."
+    note: "Contestée car la clé d'origine de l'étudiant·e était « comportementale » et les trois niveaux sont liés (Cut, diapo 2). Réponse la plus probable retenue : neuronale, le seul niveau que le cours relie à l'apprentissage par une mesure. Question ouverte à l'origine : options rédigées pour le format QCM."
   },
   {
     id: "w01-q04",
@@ -150,14 +150,14 @@ window.QCM_BANK = (window.QCM_BANK || []).concat([
       "L'apprentissage global de la chanson entière"
     ],
     correct: [0, 2],
-    explanation: "Étude sur l'apprentissage d'une chanson (fNIRS hyperscanning) : l'IBS est maximale quand l'apprenante observe l'instructrice (« observation > imitation »), et seul l'apprentissage par parties, avec tours de parole, synchronise l'IFC des deux personnes. Le signal de l'instructrice prédit celui de l'apprenante (causalité de Granger), pas l'inverse.",
+    explanation: "Réponses les plus probables : A et C. Étude de l'apprentissage d'une chanson (24 dyades, fNIRS) : la synchronie cérébrale est maximale quand l'apprenante observe l'instructrice (« observation > imitation »), et seul l'apprentissage par parties, phrase par phrase avec tours de parole, synchronise le cortex frontal inférieur des deux personnes. Le signal de l'instructrice prédit celui de l'apprenante, pas l'inverse.",
     distractors: {
       "1": "D'après la diapo, l'imitation synchronise moins que l'observation. Elle n'est pas fausse en soi, mais ce n'est pas le processus qui maximise l'IBS.",
       "3": "Le groupe en apprentissage global ne synchronise pas l'IFC et chante moins bien (21,6 contre 28,6 sur 42)."
     },
     ref: "Apprentissage et synchronie (Cut), diapo 5",
     status: "disputed",
-    note: "Clé proposée par l'étudiant·e : « observation et imitation du comportement ». La diapo précise « observation > imitation » : l'imitation est moins synchronisante. L'option B reste défendable si « favoriser » est pris au sens large. Question ouverte à l'origine : options rédigées pour le format QCM."
+    note: "Contestée car la clé d'origine était « observation et imitation ». L'imitation produit aussi de la synchronie, mais moins que l'observation : quand la question demande ce qui en favorise « plus », ne pas cocher B. Question ouverte à l'origine : options rédigées pour le format QCM."
   },
   {
     id: "w01-q08",
@@ -355,15 +355,16 @@ window.QCM_BANK = (window.QCM_BANK || []).concat([
       "EEG, fNIRS, codage comportemental",
       "MEG, fNIRS, codage émotionnel"
     ],
-    correct: [0, 2],
-    explanation: "Le support de semaine 1 cite l'EEG et la fNIRS en hyperscanning et le codage comportemental (la tACS est une stimulation, pas une mesure). Le cours de semaine 2 cite l'EEG, la MEG et la fNIRS comme capteurs de synchronie neuronale. Les combinaisons 1 et 3 sont donc toutes deux exactes.",
+    correct: [2],
+    explanation: "Réponse la plus probable : C (EEG, fNIRS, codage comportemental). Ce sont les méthodes de la diapo « Comment mesure-t-on la synchronie ? » de la séance 1 : EEG et fNIRS en hyperscanning, codage comportemental (mouvement, regard, tours de parole, alignement linguistique). La tACS y figure aussi, mais c'est une stimulation, pas une mesure.",
     distractors: {
+      "0": "Pas fausse en soi : la MEG est citée comme capteur de synchronie neuronale au cours du 28/09 (L28, diapo 41). Mais elle n'est pas sur la diapo de la séance 1 : si une seule réponse est attendue, choisir C.",
       "1": "La fMRI n'est pas citée dans le cours, et le « codage émotionnel » n'est pas une méthode présentée.",
       "3": "Le « codage émotionnel » n'est pas une méthode présentée : le cours parle de codage comportemental."
     },
     ref: "Apprentissage et synchronie (Cut), diapo 3 ; L28, diapo 41",
     status: "disputed",
-    note: "Réponse visée probablement : 3 (Cut, diapo 3). Mais la MEG figure aussi dans L28, diapo 41 : l'option 1 est donc exacte elle aussi. Si une seule réponse est attendue à l'examen, choisir 3, la seule combinaison entièrement présente sur la diapo de semaine 1."
+    note: "Contestée car A est aussi exacte d'après L28. Clé ramenée à une seule réponse : C, la seule combinaison entièrement présente sur la diapo de la séance 1."
   },
   {
     id: "w01-q17",
