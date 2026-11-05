@@ -1,4 +1,5 @@
-// Séances du cours (calendrier du Cours 1, diapo 4) et rattachement des questions.
+// Séances du cours (calendrier du Cours 1, diapo 4 ; titre de la séance 6 d'après le diaporama du 26/10)
+// et rattachement des questions.
 // Les questions à partir de la semaine 5 indiquent leur séance dans leur propre fichier (champ « lesson »).
 // Ce fichier rattache les questions des semaines 1 à 4, sans modifier ces fichiers.
 window.QCM_LESSONS = [
@@ -8,7 +9,7 @@ window.QCM_LESSONS = [
   { id: "S3",  seance: 3, date: "05/10", title: "Les émotions épistémiques", exam: 1 },
   { id: "S4",  seance: 4, date: "12/10", title: "Compétences socio-émotionnelles 4-7 ans et jeu de faire semblant", exam: 1 },
   { id: "S5",  seance: 5, date: "19/10", title: "Développer les compétences socio-émotionnelles à l'école", exam: 1 },
-  { id: "S6",  seance: 6, date: "26/10", title: "Émotions d'accomplissement", exam: 1 },
+  { id: "S6",  seance: 6, date: "26/10", title: "Compétences émotionnelles et interventions", exam: 1 },
   { id: "S8",  seance: 8, date: "16/11", title: "Émotions et attention", exam: 2 },
   { id: "S9",  seance: 9, date: "23/11", title: "Émotions et mémoire", exam: 2 },
   { id: "S10", seance: 10, date: "30/11", title: "Erreurs de prédiction, apprentissages et émotions", exam: 2 },

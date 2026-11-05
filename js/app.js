@@ -4,7 +4,7 @@
 (function () {
   "use strict";
 
-  var VERSION = "1.2.0";
+  var VERSION = "1.3.0";
   var STORE_KEY = "qcm-emoapp-progress-v1";
   var PREF_KEY = "qcm-emoapp-prefs-v1";
   var CODE_PREFIX = "QCMEA1:";
@@ -21,7 +21,7 @@
     failedFiles: [],
     progress: {},
     storageOk: true,
-    prefs: { mode: "practice", filter: "all", week: "", topic: "", lesson: "", count: "30", timer: true, v: 2 },
+    prefs: { mode: "practice", filter: "all", week: "", topic: "", lesson: "", lessons: [], weeks: [], count: "30", timer: true, v: 2 },
     session: null,
     browse: { q: "", lesson: "", week: "", topic: "", status: "" },
     lessons: [],
@@ -179,6 +179,34 @@
 
   function lessonOf(q) { return state.lessonById[q.lesson] || OTHER_LESSON; }
 
+  /* Figures : data/figures.js (facultatif) définit window.QCM_FIGURES et window.QCM_FIGURE_OF.
+     Une question peut aussi porter son propre champ « figure ». */
+  function resolveFigure(q) {
+    var figs = window.QCM_FIGURES || {};
+    var key = q.figure || (window.QCM_FIGURE_OF || {})[q.id] || "";
+    var f = figs[key];
+    return f && typeof f.svg === "string" ? key : "";
+  }
+
+  function figureHTML(q) {
+    if (!q.figure) return "";
+    var f = window.QCM_FIGURES[q.figure];
+    // Le SVG vient de data/figures.js (fichier du dépôt), inséré tel quel ; le texte est échappé.
+    return '<figure class="figure">' + (f.title ? "<h4>" + esc(f.title) + "</h4>" : "") + f.svg +
+      (f.caption ? "<figcaption>" + esc(f.caption) + "</figcaption>" : "") + "</figure>";
+  }
+
+  function lessonLineHTML(q) {
+    var l = lessonOf(q);
+    return '<p class="lesson-line">À revoir dans : <b>' + esc(lessonLong(l)) + "</b> · thème « " + esc(q.topic) + " »</p>";
+  }
+
+  /* Liste hebdomadaire N : questions déposées après la séance N. */
+  function weekLabel(w) {
+    var l = state.lessons.filter(function (x) { return x.seance === w; })[0];
+    return "Liste de la semaine " + w + (l ? " (déposée après la séance du " + l.date + ")" : "");
+  }
+
   function lessonShort(l) {
     return l.id === OTHER_LESSON.id ? l.title : "Séance " + l.seance + (l.date ? " · " + l.date : "");
   }
@@ -209,6 +237,7 @@
         week: +q.week || +q.id.slice(1, 3),
         topic: q.topic || "Sans thème",
         lesson: resolveLesson(q),
+        figure: resolveFigure(q),
         source: q.source || "student",
         variantOf: q.variantOf || "",
         question: q.question,
@@ -324,8 +353,8 @@
     var p = prefs || state.prefs;
     return state.bank.filter(function (q) {
       switch (p.filter) {
-        case "lesson": return q.lesson === p.lesson;
-        case "week": return String(q.week) === String(p.week);
+        case "lesson": return (p.lessons || []).indexOf(q.lesson) >= 0;
+        case "week": return (p.weeks || []).indexOf(String(q.week)) >= 0;
         case "topic": return q.topic === p.topic;
         case "missed": return isMissed(q.id);
         case "disputed": return q.status === "disputed";
@@ -406,13 +435,23 @@
     var p = state.prefs;
     var ws = weeks();
     var ts = topics();
-    if (!p.week || ws.indexOf(+p.week) < 0) p.week = String(ws[ws.length - 1]);
     if (!p.topic || !ts.some(function (t) { return t.name === p.topic; })) p.topic = ts[0].name;
     var ls = lessonsUsed();
-    if (!p.lesson || !ls.some(function (x) { return x.lesson.id === p.lesson; })) {
+    var lsIds = ls.map(function (x) { return x.lesson.id; });
+    var wsIds = ws.map(String);
+    // Sélections multiples : on garde ce qui existe encore ; à défaut, la dernière séance / liste.
+    if (!Array.isArray(p.lessons)) p.lessons = [];
+    if (!Array.isArray(p.weeks)) p.weeks = [];
+    if (!p.lessons.length && p.lesson) p.lessons = [p.lesson];      // reprise du réglage v1.2.0
+    if (!p.weeks.length && p.week) p.weeks = [String(p.week)];
+    // « - » = sélection vidée volontairement (bouton « Aucune ») : pas de remise par défaut.
+    p.lessons = p.lessons.filter(function (id) { return id === "-" || lsIds.indexOf(id) >= 0; });
+    p.weeks = p.weeks.map(String).filter(function (w) { return w === "-" || wsIds.indexOf(w) >= 0; });
+    if (!p.lessons.length) {
       var real = ls.filter(function (x) { return x.lesson.id !== OTHER_LESSON.id; });
-      p.lesson = (real.length ? real[real.length - 1] : ls[0]).lesson.id;
+      p.lessons = [(real.length ? real[real.length - 1] : ls[0]).lesson.id];
     }
+    if (!p.weeks.length) p.weeks = [wsIds[wsIds.length - 1]];
 
     var avail = pool().length;
     var n = p.count === "all" ? avail : Math.min(+p.count, avail);
@@ -422,22 +461,36 @@
     if (state.failedFiles.length) notices += '<p class="notice is-error">Fichier(s) introuvable(s) : ' + esc(state.failedFiles.join(", ")) + ". Vérifiez data/manifest.js.</p>";
     if (state.invalid.length) notices += '<p class="notice">' + plural(state.invalid.length, "question ignorée", "questions ignorées") + " (format invalide) : " + esc(state.invalid.map(function (x) { return x.id + " (" + x.why + ")"; }).join(" ; ")) + "</p>";
 
-    function choice(value, label, count, extra) {
+    // extra : contenu dans le libellé (menu déroulant) ; after : contenu placé après (cases à cocher, boutons).
+    function choice(value, label, count, extra, after) {
       var checked = p.filter === value ? " checked" : "";
       var empty = count === 0 ? " is-empty" : "";
       return '<label class="choice' + empty + '"><input type="radio" name="filter" value="' + value + '"' + checked + ' data-action="filter">' +
-        "<span>" + label + "</span>" + (count != null ? '<span class="n">' + count + "</span>" : "<span></span>") + (extra || "") + "</label>";
+        "<span>" + label + "</span>" + (count != null ? '<span class="n">' + count + "</span>" : "<span></span>") + (extra || "") + "</label>" +
+        (after ? '<div class="pick-wrap">' + after + "</div>" : "");
     }
 
-    var weekSelect = '<select data-action="week" aria-label="Semaine">' + ws.map(function (w) {
+    var weekSelect = '<div class="picklist" role="group" aria-label="Listes hebdomadaires">' + ws.map(function (w) {
       var c = state.bank.filter(function (q) { return q.week === w; }).length;
-      return '<option value="' + w + '"' + (String(w) === String(p.week) ? " selected" : "") + ">Semaine " + w + " (" + c + ")</option>";
-    }).join("") + "</select>";
+      var on = p.weeks.indexOf(String(w)) >= 0;
+      return '<label><input type="checkbox" data-action="pick-week" value="' + w + '"' + (on ? " checked" : "") + ">" +
+        "<span>" + esc(weekLabel(w)) + "</span><span class=\"n\">" + c + "</span></label>";
+    }).join("") + "</div>" +
+      '<div class="pick-actions"><button type="button" data-action="pick-all" data-kind="week">Toutes</button>' +
+      '<button type="button" data-action="pick-none" data-kind="week">Aucune</button></div>';
 
-    var lessonSelect = '<select data-action="lesson" aria-label="Séance">' + ls.map(function (x) {
-      return '<option value="' + esc(x.lesson.id) + '"' + (x.lesson.id === p.lesson ? " selected" : "") + ">" +
-        esc(lessonLong(x.lesson)) + " (" + x.n + ")</option>";
-    }).join("") + "</select>";
+    var exam1 = ls.filter(function (x) { return x.lesson.exam === 1; });
+    var lessonSelect = '<div class="picklist" role="group" aria-label="Séances du cours">' + ls.map(function (x) {
+      var on = p.lessons.indexOf(x.lesson.id) >= 0;
+      return '<label><input type="checkbox" data-action="pick-lesson" value="' + esc(x.lesson.id) + '"' + (on ? " checked" : "") + ">" +
+        "<span>" + esc(x.lesson.title) + "<small>" + esc(lessonShort(x.lesson)) + "</small></span><span class=\"n\">" + x.n + "</span></label>";
+    }).join("") + "</div>" +
+      '<div class="pick-actions">' +
+        (exam1.length ? '<button type="button" data-action="pick-exam" data-exam="1">QCM 1 (séances 1 à 6)</button>' : "") +
+        (ls.some(function (x) { return x.lesson.exam === 2; }) ? '<button type="button" data-action="pick-exam" data-exam="2">QCM 2 (séances 8 à 11)</button>' : "") +
+        '<button type="button" data-action="pick-all" data-kind="lesson">Toutes</button>' +
+        '<button type="button" data-action="pick-none" data-kind="lesson">Aucune</button>' +
+      "</div>";
 
     var topicSelect = '<select data-action="topic" aria-label="Thème">' + topicsByLesson().map(function (g) {
       return '<optgroup label="' + esc(lessonLong(g.lesson)) + '">' + g.topics.map(function (t) {
@@ -492,9 +545,9 @@
             "<h2>Questions</h2>" +
             '<div class="choices">' +
               choice("all", "Toutes les questions", total) +
-              choice("lesson", "Par séance du cours", null, p.filter === "lesson" ? lessonSelect : "") +
-              choice("topic", "Par thème (regroupés par séance)", null, p.filter === "topic" ? topicSelect : "") +
-              choice("week", "Par liste hebdomadaire (semaine de dépôt)", null, p.filter === "week" ? weekSelect : "") +
+              choice("lesson", "Par séance du cours (thème du diaporama) · plusieurs choix possibles", null, "", p.filter === "lesson" ? lessonSelect : "") +
+              choice("week", "Par liste hebdomadaire de questions · plusieurs choix possibles", null, "", p.filter === "week" ? weekSelect : "") +
+              choice("topic", "Par thème précis (regroupés par séance)", null, p.filter === "topic" ? topicSelect : "") +
               choice("missed", "À revoir (ratées, pas encore réussies)", missed) +
               choice("disputed", "Contestées (clé discutable)", disputed) +
               choice("unverified", "Non vérifiées (hors supports)", unverified) +
@@ -659,6 +712,8 @@
       "<p><b>" + (right.length > 1 ? "Réponses : " : "Réponse : ") + right.join(", ") + "</b>. " + esc(rightTexts.join(" ; ")) + "</p>" +
       (q.explanation ? "<h3>Explication</h3><p>" + esc(q.explanation) + "</p>" : "") +
       (dist ? "<h3>Pourquoi les autres options sont fausses</h3><ul class=\"dlist\">" + dist + "</ul>" : "") +
+      figureHTML(q) +
+      lessonLineHTML(q) +
       '<p class="ref">Source : ' + (q.ref ? esc(q.ref) : "aucune source dans les supports du cours") + " " + sourceBadge(q) + "</p>" +
       status +
       "</section>";
@@ -801,6 +856,8 @@
         "<details><summary>Explication et source</summary>" +
           "<p>" + esc(q.explanation) + "</p>" +
           (dist ? '<ul class="dlist">' + dist + "</ul>" : "") +
+          figureHTML(q) +
+          lessonLineHTML(q) +
           '<p class="ref">Source : ' + (q.ref ? esc(q.ref) : "aucune source dans les supports du cours") + "</p>" +
           (q.note ? '<div class="status-box">' + statusBadge(q) + esc(q.note) + "</div>" : "") +
         "</details></li>";
@@ -865,6 +922,8 @@
         "<details><summary>Explication et source</summary>" +
           "<p>" + esc(q.explanation) + "</p>" +
           (dist ? '<ul class="dlist">' + dist + "</ul>" : "") +
+          figureHTML(q) +
+          lessonLineHTML(q) +
           '<p class="ref">Source : ' + (q.ref ? esc(q.ref) : "aucune source dans les supports du cours") + "</p>" +
           (q.note ? '<div class="status-box">' + statusBadge(q) + esc(q.note) + "</div>" : "") +
         "</details></li>";
@@ -1006,6 +1065,17 @@
         savePrefs(); renderHome(); break;
       case "count":
         p.count = el.getAttribute("data-value"); savePrefs(); renderHome(); break;
+      case "pick-all":
+        if (el.getAttribute("data-kind") === "lesson") p.lessons = lessonsUsed().map(function (x) { return x.lesson.id; });
+        else p.weeks = weeks().map(String);
+        savePrefs(); renderHome(); break;
+      case "pick-none":
+        if (el.getAttribute("data-kind") === "lesson") p.lessons = ["-"]; else p.weeks = ["-"];
+        savePrefs(); renderHome(); break;
+      case "pick-exam":
+        var ex = +el.getAttribute("data-exam");
+        p.lessons = lessonsUsed().filter(function (x) { return x.lesson.exam === ex; }).map(function (x) { return x.lesson.id; });
+        savePrefs(); renderHome(); break;
       case "start":
         startSession(p.mode, pickQuestions(pool(), p.count)); break;
       case "pick":
@@ -1061,10 +1131,14 @@
     var a = el.getAttribute("data-action");
     var p = state.prefs;
     if (a === "filter") { p.filter = el.value; savePrefs(); renderHome(); }
-    else if (a === "week") { p.week = el.value; savePrefs(); renderHome(); }
+    else if (a === "pick-lesson" || a === "pick-week") {
+      var key = a === "pick-lesson" ? "lessons" : "weeks";
+      var set = p[key].filter(function (v) { return v !== el.value; });
+      if (el.checked) set.push(el.value);
+      p[key] = set; savePrefs(); renderHome();
+    }
     else if (a === "topic") { p.topic = el.value; savePrefs(); renderHome(); }
     else if (a === "timer") { p.timer = el.checked; savePrefs(); }
-    else if (a === "lesson") { p.lesson = el.value; savePrefs(); renderHome(); }
     else if (a === "b-lesson") { state.browse.lesson = el.value; renderBrowse(false); }
     else if (a === "b-topic") { state.browse.topic = el.value; renderBrowse(false); }
     else if (a === "b-status") { state.browse.status = el.value; renderBrowse(false); }

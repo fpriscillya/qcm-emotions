@@ -543,3 +543,70 @@ details[open] > summary { margin-bottom: 6px; }
 .modal .msg.is-ok { color: var(--ok); }
 .modal .msg.is-bad { color: var(--bad); }
 .modal .close-row { display: flex; justify-content: flex-end; margin-top: 18px; }
+
+/* ---------- Figures (v1.3.0) ---------- */
+/* Palette validée (3 couleurs catégorielles, clair et sombre) ; séquentiel bleu pour les niveaux ordonnés. */
+
+:root {
+  --fig-c1: #2a78d6;  /* bleu */
+  --fig-c2: #eb6834;  /* orange */
+  --fig-c3: #1baf7a;  /* vert d'eau */
+  --fig-q1: #86b6ef;
+  --fig-q2: #3987e5;
+  --fig-q3: #184f95;
+  --fig-box1: #e3eefb;
+  --fig-box2: #cde2fb;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fig-c1: #3987e5;
+    --fig-c2: #d95926;
+    --fig-c3: #199e70;
+    --fig-q1: #2a5d9c;
+    --fig-q2: #4f95e8;
+    --fig-q3: #b7d3f6;
+    --fig-box1: #1f2c40;
+    --fig-box2: #22385a;
+  }
+}
+
+.figure { margin: 18px 0 4px; padding: 14px 14px 10px; background: var(--surface-2); border-radius: var(--r); }
+.figure h4 { margin: 0 0 8px; font-size: 0.95rem; font-weight: 650; }
+.figure .fig-svg { display: block; width: 100%; height: auto; overflow: visible; }
+.feedback .figure, .card .figure, .review .figure { margin-left: -8px; margin-right: -8px; padding: 12px 8px 10px; }
+.figure figcaption { color: var(--muted); font-size: 0.82rem; line-height: 1.45; margin-top: 8px; }
+
+.fig-t { font: 12.5px var(--sans); fill: var(--muted); }
+.fig-v { font: 600 13px var(--sans); fill: var(--ink); }
+.fig-grid { stroke: var(--line); stroke-width: 1; }
+.fig-axis { stroke: var(--muted); stroke-width: 1; }
+.fig-mark { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 3 3; }
+.fig-frame { fill: none; stroke: var(--muted); stroke-width: 1.5; }
+.fig-line { fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.fig-ring { stroke: var(--surface-2); stroke-width: 2; }
+.fig-dot { fill: var(--muted); }
+
+.fig-c1 { fill: var(--fig-c1); }  .fig-c1-s { stroke: var(--fig-c1); }
+.fig-c2 { fill: var(--fig-c2); }  .fig-c2-s { stroke: var(--fig-c2); }
+.fig-c3 { fill: var(--fig-c3); }  .fig-c3-s { stroke: var(--fig-c3); }
+.fig-q1 { fill: var(--fig-q1); }  .fig-q1-s { stroke: var(--fig-q1); }
+.fig-q2 { fill: var(--fig-q2); }  .fig-q2-s { stroke: var(--fig-q2); }
+.fig-q3 { fill: var(--fig-q3); }  .fig-q3-s { stroke: var(--fig-q3); }
+.fig-box1 { fill: var(--fig-box1); stroke: var(--fig-c1); stroke-width: 1; }
+.fig-box2 { fill: var(--fig-box2); stroke: var(--fig-c1); stroke-width: 1.5; }
+.fig-brace1, .fig-brace2 { fill: none; stroke: var(--fig-c1); stroke-width: 2; stroke-linecap: round; }
+.fig-brace1 { stroke-dasharray: 4 4; }
+
+/* Sélection multiple (séances, listes) */
+.pick-wrap { margin: 0 0 8px 32px; padding: 6px; border-radius: 10px; background: var(--surface-2); }
+.picklist { display: grid; gap: 2px; }
+.picklist label { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: start; padding: 6px 6px; border-radius: 8px; cursor: pointer; font-size: 0.92rem; }
+.picklist label:hover { background: var(--surface); }
+.picklist input { accent-color: var(--a); width: 17px; height: 17px; margin: 2px 0 0; }
+.picklist small { display: block; color: var(--muted); font-size: 0.8rem; }
+.picklist .n { color: var(--muted); font-variant-numeric: tabular-nums; font-size: 0.85rem; }
+.pick-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.pick-actions button { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 5px 12px; font-size: 0.82rem; cursor: pointer; }
+.pick-actions button:hover { border-color: var(--a); }
+.lesson-line { font-size: 0.875rem; color: var(--muted); margin-top: 14px; }
