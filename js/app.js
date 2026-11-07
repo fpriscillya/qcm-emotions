@@ -4,7 +4,7 @@
 (function () {
   "use strict";
 
-  var VERSION = "1.3.0";
+  var VERSION = "1.4.0";
   var STORE_KEY = "qcm-emoapp-progress-v1";
   var PREF_KEY = "qcm-emoapp-prefs-v1";
   var CODE_PREFIX = "QCMEA1:";
@@ -373,8 +373,30 @@
     return shuffle(shuffled.slice(0, n));
   }
 
+  /* Ordre des options en session.
+     - Une option qui renvoie à d'autres options par leur lettre (« Les réponses A et B sont correctes »)
+       n'a de sens que dans l'ordre du fichier : la question n'est pas mélangée.
+     - « Toutes les réponses sont correctes », « Tout est faux », « Aucune… » restent en dernier ;
+       les autres options sont mélangées. */
+  var LETTER_REF = /\b[A-E]\s*(et|ou|,)\s*[A-E]\b|\b(réponses?|options?|propositions?)\s+[A-E]\b/i;
+  var META_OPTION = /^\s*(toutes? les (réponses|propositions)|tout est (faux|vrai|juste)|aucune (des|de ces) (réponses|propositions)|aucune réponse)/i;
+
+  function optionOrder(q) {
+    var idx = range(q.options.length);
+    if (q.options.some(function (o) { return LETTER_REF.test(o); })) return idx;
+    var meta = idx.filter(function (i) { return META_OPTION.test(q.options[i]); });
+    var rest = idx.filter(function (i) { return meta.indexOf(i) < 0; });
+    return shuffle(rest).concat(meta);
+  }
+
+  /* Texte de la question : mention ajoutée quand plusieurs réponses sont attendues et que l'énoncé ne le dit pas. */
+  function questionText(q) {
+    if (q.correct.length > 1 && !/plusieurs réponses/i.test(q.question)) return q.question + " (plusieurs réponses possibles)";
+    return q.question;
+  }
+
   function makeItem(q, again) {
-    return { id: q.id, order: shuffle(range(q.options.length)), again: !!again, picked: [], done: false, ok: null };
+    return { id: q.id, order: optionOrder(q), again: !!again, picked: [], done: false, ok: null };
   }
 
   /* ---------------------------------------------------------------- */
@@ -668,8 +690,8 @@
       '<div class="wrap">' +
         '<div class="qmeta"><span>' + esc(lessonShort(lessonOf(q))) + "</span><span>" + esc(q.topic) + "</span>" +
           (item.again ? '<span class="again">À revoir</span>' : "") + "</div>" +
-        '<p class="qtext">' + esc(q.question) + "</p>" +
-        (multi ? '<p class="multi-hint">Plusieurs réponses possibles</p>' : "") +
+        '<p class="qtext">' + esc(questionText(q)) + "</p>" +
+        (multi ? '<p class="multi-hint">Cochez toutes les bonnes réponses' + (isExam ? "" : ", puis Valider") + ". Une réponse incomplète compte comme fausse.</p>" : "") +
         '<ul class="options">' + opts + "</ul>" +
         (answered ? feedbackHTML(q, item) : "") +
         palette +
@@ -692,7 +714,12 @@
     var rightTexts = item.order.filter(function (o) { return q.correct.indexOf(o) >= 0; }).map(function (o) { return q.options[o]; });
     var verdict = ok ? "Bonne réponse" : (item.picked.length ? "Réponse incorrecte" : "Question passée");
     var partial = !ok && q.correct.length > 1 && item.picked.some(function (o) { return q.correct.indexOf(o) >= 0; });
-    if (partial) verdict = "Réponse incomplète ou en partie fausse";
+    if (partial) {
+      var hit = item.picked.filter(function (o) { return q.correct.indexOf(o) >= 0; }).length;
+      var extra = item.picked.length - hit;
+      verdict = "Réponse incomplète : " + hit + " bonne" + (hit > 1 ? "s" : "") + " réponse" + (hit > 1 ? "s" : "") + " cochée" + (hit > 1 ? "s" : "") +
+        " sur " + q.correct.length + (extra ? ", et " + extra + " fausse" + (extra > 1 ? "s" : "") : "");
+    }
 
     var dist = item.order.map(function (orig, pos) {
       if (q.correct.indexOf(orig) >= 0) return "";
@@ -803,7 +830,7 @@
 
     var list = ids.filter(function (id) { return !s.firstTry[id]; }).map(function (id) {
       var q = state.byId[id];
-      return '<li class="is-bad"><p class="rq">' + esc(q.question) + "</p>" +
+      return '<li class="is-bad"><p class="rq">' + esc(questionText(q)) + "</p>" +
         '<p class="ra"><b>Réponse :</b> ' + esc(q.correct.map(function (c) { return q.options[c]; }).join(" ; ")) + "</p>" +
         '<p class="ra" style="color:var(--muted)">' + esc(q.ref || "Aucune source dans les supports") + "</p></li>";
     }).join("");
@@ -850,7 +877,7 @@
       }).join("");
       return '<li class="' + (it.ok ? "is-ok" : "is-bad") + '">' +
         '<div class="qmeta" style="margin:0 0 6px"><span>Question ' + (i + 1) + "</span><span>" + esc(q.topic) + "</span>" + statusBadge(q) + "</div>" +
-        '<p class="rq">' + esc(q.question) + "</p>" +
+        '<p class="rq">' + esc(questionText(q)) + "</p>" +
         '<p class="ra"><b>Votre réponse :</b> ' + esc(mine) + "</p>" +
         (it.ok ? "" : '<p class="ra"><b>Bonne réponse :</b> ' + esc(letters(q.correct).join(" ; ")) + "</p>") +
         "<details><summary>Explication et source</summary>" +
@@ -914,7 +941,7 @@
       }).join("");
       return '<li class="card">' +
         '<div class="qmeta"><span>' + esc(q.id) + "</span><span>" + esc(q.topic) + "</span>" + statusBadge(q) + sourceBadge(q) + "</div>" +
-        '<p class="qtext">' + esc(q.question) + "</p>" +
+        '<p class="qtext">' + esc(questionText(q)) + "</p>" +
         "<ol>" + q.options.map(function (o, i) {
           var ok = q.correct.indexOf(i) >= 0;
           return '<li class="' + (ok ? "is-correct" : "") + '"><b>' + LETTERS[i] + "</b><span>" + esc(o) + (ok ? '<span class="visually-hidden"> (bonne réponse)</span>' : "") + "</span></li>";
