@@ -265,10 +265,10 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .links-row { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 18px 0 0; }
 
 .notice {
-  border-left: 3px solid var(--warn);
+  border: 1px solid var(--warn);
   background: var(--warn-soft);
   padding: 10px 14px;
-  border-radius: 0 8px 8px 0;
+  border-radius: 8px;
   margin: 16px 0 0;
   font-size: 0.9rem;
 }
@@ -409,13 +409,10 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .feedback {
   margin: 22px 0 0;
   padding: 16px 18px;
-  border-left: 4px solid var(--line);
+  border: 1px solid var(--line);
   background: var(--surface);
-  border-radius: 0 var(--r) var(--r) 0;
+  border-radius: var(--r);
 }
-
-.feedback.is-ok { border-color: var(--ok); }
-.feedback.is-bad { border-color: var(--bad); }
 
 .verdict { font-weight: 700; font-size: 1.05rem; margin: 0 0 6px; }
 .feedback.is-ok .verdict { color: var(--ok); }
@@ -458,12 +455,12 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .review > li {
   background: var(--surface);
   border: 1px solid var(--line);
-  border-left: 4px solid var(--line);
-  border-radius: 0 var(--r) var(--r) 0;
+  border-radius: var(--r);
   padding: 14px 16px;
 }
-.review > li.is-ok { border-left-color: var(--ok); }
-.review > li.is-bad { border-left-color: var(--bad); }
+/* Corrigé de l'examen : juste / faux indiqué en texte à côté du numéro de question */
+.review > li.is-ok .qmeta > span:first-child::after { content: " · juste"; color: var(--ok); font-weight: 650; }
+.review > li.is-bad .qmeta > span:first-child::after { content: " · faux"; color: var(--bad); font-weight: 650; }
 
 .review .rq { font-family: var(--serif); font-size: 1.05rem; margin: 0 0 8px; }
 .review .ra { font-size: 0.92rem; margin: 2px 0; }
@@ -610,3 +607,53 @@ details[open] > summary { margin-bottom: 6px; }
 .pick-actions button { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 5px 12px; font-size: 0.82rem; cursor: pointer; }
 .pick-actions button:hover { border-color: var(--a); }
 .lesson-line { font-size: 0.875rem; color: var(--muted); margin-top: 14px; }
+
+/* ---------- Thème sarcelle (fond #00b1ae, texte noir) ---------- */
+/* Appliqué en mode clair ET sombre. Pour revenir au thème d'origine, supprimer ce bloc. */
+
+:root,
+:root:not(.x) {
+  color-scheme: light;
+  --bg: #00b1ae;          /* fond de page */
+  --surface: #ffffff;     /* cartes, options */
+  --surface-2: #e8f6f5;   /* zones secondaires */
+  --ink: #000000;         /* texte principal */
+  --muted: #1c2b2b;       /* texte secondaire */
+  --line: rgba(0, 0, 0, 0.22);
+  --a: #000000;           /* boutons, sélection, barre de progression */
+  --a-soft: #d6efed;
+  --a-ink: #004e4c;       /* liens « Explication et source » */
+  --b: #6a0033;           /* consignes « plusieurs réponses », « À revoir » */
+  --b-soft: #f6e1ea;
+  --ok: #1e7f48;  --ok-soft: #e3f3ea;
+  --bad: #b93a33; --bad-soft: #fbe9e7;
+  --warn: #9a6512; --warn-soft: #fbf0dc;
+  --focus: #000000;
+  --fig-c1: #2a78d6; --fig-c2: #eb6834; --fig-c3: #1baf7a;
+  --fig-q1: #86b6ef; --fig-q2: #3987e5; --fig-q3: #184f95;
+  --fig-box1: #e3eefb; --fig-box2: #cde2fb;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root,
+  :root:not(.x) {
+    color-scheme: light;
+    --bg: #00b1ae; --surface: #ffffff; --surface-2: #e8f6f5;
+    --ink: #000000; --muted: #1c2b2b; --line: rgba(0, 0, 0, 0.22);
+    --a: #000000; --a-soft: #d6efed; --a-ink: #004e4c;
+    --b: #6a0033; --b-soft: #f6e1ea;
+    --ok: #1e7f48;  --ok-soft: #e3f3ea;
+    --bad: #b93a33; --bad-soft: #fbe9e7;
+    --warn: #9a6512; --warn-soft: #fbf0dc;
+    --focus: #000000;
+    --fig-c1: #2a78d6; --fig-c2: #eb6834; --fig-c3: #1baf7a;
+    --fig-q1: #86b6ef; --fig-q2: #3987e5; --fig-q3: #184f95;
+    --fig-box1: #e3eefb; --fig-box2: #cde2fb;
+  }
+}
+
+/* Texte blanc sur les éléments noirs */
+.btn-primary, .btn-primary:hover { color: #ffffff; }
+.opt[aria-pressed="true"] .letter { color: #ffffff; }
+/* Courbes de l'accueil : noire et blanche sur le fond sarcelle */
+.sync .wave-b { stroke: #ffffff; }
