@@ -10,7 +10,7 @@ window.QCM_LESSONS = [
   { id: "S4",  seance: 4, date: "12/10", title: "Compétences socio-émotionnelles 4-7 ans et jeu de faire semblant", exam: 1 },
   { id: "S5",  seance: 5, date: "19/10", title: "Développer les compétences socio-émotionnelles à l'école", exam: 1 },
   { id: "S6",  seance: 6, date: "26/10", title: "Compétences émotionnelles et interventions", exam: 1 },
-  { id: "S8",  seance: 8, date: "16/11", title: "Émotions et attention", exam: 2 },
+  { id: "S8",  seance: 8, date: "16/11", title: "Émotions, attention et mémoire", exam: 2 },
   { id: "S9",  seance: 9, date: "23/11", title: "Émotions et mémoire", exam: 2 },
   { id: "S10", seance: 10, date: "30/11", title: "Erreurs de prédiction, apprentissages et émotions", exam: 2 },
   { id: "S11", seance: 11, date: "07/12", title: "Musique, émotions et apprentissages", exam: 2 }

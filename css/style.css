@@ -657,3 +657,19 @@ details[open] > summary { margin-bottom: 6px; }
 .opt[aria-pressed="true"] .letter { color: #ffffff; }
 /* Courbes de l'accueil : noire et blanche sur le fond sarcelle */
 .sync .wave-b { stroke: #ffffff; }
+
+/* ---------- Onglets QCM 1 / QCM 2 (v1.5.0) ---------- */
+.exam-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 18px 0 0; }
+.exam-tabs button {
+  text-align: left;
+  padding: 10px 14px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--r);
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+}
+.exam-tabs button b { display: block; font-size: 1.05rem; font-weight: 700; }
+.exam-tabs button small { display: block; color: var(--muted); font-size: 0.8rem; margin-top: 2px; }
+.exam-tabs button[aria-selected="true"] { background: var(--surface); border-color: var(--ink); }
+.exam-tabs button:hover:not([aria-selected="true"]) { border-color: var(--ink); }

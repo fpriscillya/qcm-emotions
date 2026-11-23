@@ -4,7 +4,7 @@
 (function () {
   "use strict";
 
-  var VERSION = "1.4.0";
+  var VERSION = "1.5.0";
   var STORE_KEY = "qcm-emoapp-progress-v1";
   var PREF_KEY = "qcm-emoapp-prefs-v1";
   var CODE_PREFIX = "QCMEA1:";
@@ -21,7 +21,8 @@
     failedFiles: [],
     progress: {},
     storageOk: true,
-    prefs: { mode: "practice", filter: "all", week: "", topic: "", lesson: "", lessons: [], weeks: [], count: "30", timer: true, v: 2 },
+    prefs: { mode: "practice", filter: "all", week: "", topic: "", lesson: "", lessons: [], weeks: [], count: "30", timer: true, v: 2, exam: 0 },
+    view: "home",
     session: null,
     browse: { q: "", lesson: "", week: "", topic: "", status: "" },
     lessons: [],
@@ -299,22 +300,67 @@
   /* Sélection des questions                                           */
   /* ---------------------------------------------------------------- */
 
+  /* Onglets QCM 1 / QCM 2 : chaque question appartient à l'examen de sa séance (lessons.js, champ exam).
+     À défaut de séance, les listes 1 à 6 vont au QCM 1 et les suivantes au QCM 2.
+     Toutes les vues (accueil, sessions, fiches) ne montrent que les questions de l'onglet actif. */
+  function examOf(q) {
+    var l = lessonOf(q);
+    return l.exam || (q.week <= 6 ? 1 : 2);
+  }
+
+  function examsAvailable() {
+    var n = {};
+    state.bank.forEach(function (q) { var e = examOf(q); n[e] = (n[e] || 0) + 1; });
+    return Object.keys(n).map(Number).sort().map(function (e) { return { exam: e, n: n[e] }; });
+  }
+
+  function examSessions(e) {
+    var s = state.lessons.filter(function (l) { return l.exam === e; }).map(function (l) { return l.seance; });
+    if (!s.length) return "";
+    var min = Math.min.apply(null, s), max = Math.max.apply(null, s);
+    return min === max ? "séance " + min : "séances " + min + " à " + max;
+  }
+
+  function currentExam() {
+    var av = examsAvailable().map(function (x) { return x.exam; });
+    var e = +state.prefs.exam;
+    if (av.indexOf(e) < 0) e = av[av.length - 1];   // par défaut : le QCM le plus récent
+    state.prefs.exam = e;
+    return e;
+  }
+
+  function scope() {
+    var e = currentExam();
+    return state.bank.filter(function (q) { return examOf(q) === e; });
+  }
+
+  function examTabsHTML() {
+    var e = currentExam();
+    var av = examsAvailable();
+    if (av.length < 2) return "";
+    return '<nav class="exam-tabs" role="tablist" aria-label="Examen">' + av.map(function (x) {
+      var sel = x.exam === e;
+      return '<button type="button" role="tab" data-action="exam-tab" data-exam="' + x.exam + '" aria-selected="' + sel + '">' +
+        "<b>QCM " + x.exam + "</b><small>" + esc(examSessions(x.exam)) + " · " + plural(x.n, "question", "questions") + "</small></button>";
+    }).join("") + "</nav>";
+  }
+
   function weeks() {
     var w = {};
-    state.bank.forEach(function (q) { w[q.week] = true; });
+    scope().forEach(function (q) { w[q.week] = true; });
     return Object.keys(w).map(Number).sort(function (a, b) { return a - b; });
   }
 
   function topics() {
     var t = {};
-    state.bank.forEach(function (q) { t[q.topic] = (t[q.topic] || 0) + 1; });
+    scope().forEach(function (q) { t[q.topic] = (t[q.topic] || 0) + 1; });
     return Object.keys(t).sort(function (a, b) { return a.localeCompare(b, "fr"); }).map(function (k) { return { name: k, n: t[k] }; });
   }
 
   /* Séances qui ont au moins une question, dans l'ordre du calendrier. */
   function lessonsUsed() {
     var n = {};
-    state.bank.forEach(function (q) { n[q.lesson] = (n[q.lesson] || 0) + 1; });
+    scope().forEach(function (q) { n[q.lesson] = (n[q.lesson] || 0) + 1; });
     return state.lessons.concat([OTHER_LESSON])
       .filter(function (l) { return n[l.id]; })
       .map(function (l) { return { lesson: l, n: n[l.id] }; });
@@ -323,7 +369,7 @@
   /* Thèmes regroupés sous la séance où ils apparaissent le plus. */
   function topicsByLesson() {
     var count = {};
-    state.bank.forEach(function (q) {
+    scope().forEach(function (q) {
       var c = count[q.topic] || (count[q.topic] = { n: 0, by: {} });
       c.n += 1;
       c.by[q.lesson] = (c.by[q.lesson] || 0) + 1;
@@ -351,7 +397,7 @@
 
   function pool(prefs) {
     var p = prefs || state.prefs;
-    return state.bank.filter(function (q) {
+    return scope().filter(function (q) {
       switch (p.filter) {
         case "lesson": return (p.lessons || []).indexOf(q.lesson) >= 0;
         case "week": return (p.weeks || []).indexOf(String(q.week)) >= 0;
@@ -448,11 +494,14 @@
   function renderHome() {
     stopTimer();
     state.session = null;
-    var total = state.bank.length;
-    var mastered = state.bank.filter(function (q) { return isMastered(q.id); }).length;
-    var missed = state.bank.filter(function (q) { return isMissed(q.id); }).length;
-    var disputed = state.bank.filter(function (q) { return q.status === "disputed"; }).length;
-    var unverified = state.bank.filter(function (q) { return q.status === "unverified"; }).length;
+    state.view = "home";
+    var exam = currentExam();
+    var bank = scope();
+    var total = bank.length;
+    var mastered = bank.filter(function (q) { return isMastered(q.id); }).length;
+    var missed = bank.filter(function (q) { return isMissed(q.id); }).length;
+    var disputed = bank.filter(function (q) { return q.status === "disputed"; }).length;
+    var unverified = bank.filter(function (q) { return q.status === "unverified"; }).length;
     var ratio = total ? mastered / total : 0;
     var p = state.prefs;
     var ws = weeks();
@@ -493,7 +542,7 @@
     }
 
     var weekSelect = '<div class="picklist" role="group" aria-label="Listes hebdomadaires">' + ws.map(function (w) {
-      var c = state.bank.filter(function (q) { return q.week === w; }).length;
+      var c = bank.filter(function (q) { return q.week === w; }).length;
       var on = p.weeks.indexOf(String(w)) >= 0;
       return '<label><input type="checkbox" data-action="pick-week" value="' + w + '"' + (on ? " checked" : "") + ">" +
         "<span>" + esc(weekLabel(w)) + "</span><span class=\"n\">" + c + "</span></label>";
@@ -501,15 +550,12 @@
       '<div class="pick-actions"><button type="button" data-action="pick-all" data-kind="week">Toutes</button>' +
       '<button type="button" data-action="pick-none" data-kind="week">Aucune</button></div>';
 
-    var exam1 = ls.filter(function (x) { return x.lesson.exam === 1; });
     var lessonSelect = '<div class="picklist" role="group" aria-label="Séances du cours">' + ls.map(function (x) {
       var on = p.lessons.indexOf(x.lesson.id) >= 0;
       return '<label><input type="checkbox" data-action="pick-lesson" value="' + esc(x.lesson.id) + '"' + (on ? " checked" : "") + ">" +
         "<span>" + esc(x.lesson.title) + "<small>" + esc(lessonShort(x.lesson)) + "</small></span><span class=\"n\">" + x.n + "</span></label>";
     }).join("") + "</div>" +
       '<div class="pick-actions">' +
-        (exam1.length ? '<button type="button" data-action="pick-exam" data-exam="1">QCM 1 (séances 1 à 6)</button>' : "") +
-        (ls.some(function (x) { return x.lesson.exam === 2; }) ? '<button type="button" data-action="pick-exam" data-exam="2">QCM 2 (séances 8 à 11)</button>' : "") +
         '<button type="button" data-action="pick-all" data-kind="lesson">Toutes</button>' +
         '<button type="button" data-action="pick-none" data-kind="lesson">Aucune</button>' +
       "</div>";
@@ -534,9 +580,10 @@
 
     app.innerHTML =
       '<div class="wrap">' +
+        examTabsHTML() +
         '<header class="masthead">' +
           "<h1>Émotions et apprentissage</h1>" +
-          '<p class="sub">Révision du QCM à partir des questions proposées en cours</p>' +
+          '<p class="sub">Révision du QCM ' + exam + " (" + esc(examSessions(exam)) + ") à partir des questions proposées en cours</p>" +
           '<div class="sync">' + waveSVG(ratio) +
             '<div class="score">' + Math.round(ratio * 100) + "&nbsp;%</div>" +
             '<p class="caption">Questions maîtrisées. Les deux courbes s\'alignent quand la maîtrise progresse.</p>' +
@@ -918,11 +965,12 @@
 
   function renderBrowse(keepFocus) {
     stopTimer();
+    state.view = "browse";
     var b = state.browse;
     var ls = lessonsUsed();
     var tg = topicsByLesson();
     var needle = b.q.trim().toLowerCase();
-    var list = state.bank.filter(function (q) {
+    var list = scope().filter(function (q) {
       if (b.lesson && q.lesson !== b.lesson) return false;
       if (b.topic && q.topic !== b.topic) return false;
       if (b.status && q.status !== b.status) return false;
@@ -974,9 +1022,10 @@
     app.innerHTML =
       '<div class="topbar"><div class="wrap">' +
         '<button type="button" class="btn btn-quiet" data-action="home">Accueil</button>' +
-        '<div class="where">Fiches<small>' + plural(list.length, "question", "questions") + "</small></div><span></span>" +
+        '<div class="where">Fiches · QCM ' + currentExam() + "<small>" + plural(list.length, "question", "questions") + "</small></div><span></span>" +
       "</div></div>" +
       '<div class="wrap">' +
+        examTabsHTML() +
         '<div class="filters">' +
           '<input type="search" class="full" data-action="b-q" placeholder="Rechercher un mot (ex. HRV, Scherer, SHER)" value="' + esc(b.q) + '" aria-label="Rechercher">' +
           '<select data-action="b-lesson" aria-label="Séance"><option value="">Toutes les séances</option>' +
@@ -1099,10 +1148,16 @@
       case "pick-none":
         if (el.getAttribute("data-kind") === "lesson") p.lessons = ["-"]; else p.weeks = ["-"];
         savePrefs(); renderHome(); break;
-      case "pick-exam":
-        var ex = +el.getAttribute("data-exam");
-        p.lessons = lessonsUsed().filter(function (x) { return x.lesson.exam === ex; }).map(function (x) { return x.lesson.id; });
-        savePrefs(); renderHome(); break;
+      case "exam-tab":
+        p.exam = +el.getAttribute("data-exam");
+        // Les filtres de séance, de liste, de thème et des fiches ne valent que pour un onglet : on les remet à zéro.
+        p.lessons = []; p.weeks = []; p.topic = ""; p.lesson = ""; p.week = "";
+        if (p.filter === "lesson" || p.filter === "week" || p.filter === "topic") p.filter = "all";
+        state.browse.lesson = ""; state.browse.topic = "";
+        savePrefs();
+        if (state.view === "browse") { renderBrowse(false); } else { renderHome(); }
+        window.scrollTo(0, 0);
+        break;
       case "start":
         startSession(p.mode, pickQuestions(pool(), p.count)); break;
       case "pick":
